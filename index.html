@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script async="async" type="text/javascript" crossorigin="" src='//consent.trustarc.com/notice?domain=fayne-test.com&c=teconsent&js=nj&noticeType=bb'></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TrustArc – Consent Test</title>
@@ -24,6 +25,15 @@
   }
   header span { color: white; font-weight: 700; font-size: 1rem; }
   header span em { color: #00b4d8; font-style: normal; }
+  .env-badge {
+    background: #e91e8c;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
 
   main {
     flex: 1;
@@ -89,10 +99,10 @@
 </head>
 <body>
 
-<div id="teconsent"></div>
+<div id="consent_blackbar"></div>
 
 <header>
-  <span>TrustArc <em>|</em> Adobe Experience Platform</span>
+  <span>TrustArc <em>|</em> AEP Consent Test</span>
 </header>
 
 <main>
@@ -125,6 +135,12 @@
     </div>
   </div>
 </main>
+
+<footer id="site-footer" style="background:#0d1b2a; padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+  <span style="color:rgba(255,255,255,0.45); font-size:0.8rem;">© 2026 TrustArc Inc. — For integration testing only. Not for production use.</span>
+  <div id="teconsent" style="color:rgba(255,255,255,0.7); font-size:0.85rem;"></div>
+  <a href="https://www.trustarc.com" target="_blank" style="color:#00b4d8; text-decoration:none; font-size:0.8rem;">trustarc.com</a>
+</footer>
 
 <script>
 (function () {
