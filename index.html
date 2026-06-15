@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustArc – Consent Test</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #0d1b2a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: #0d1b2a;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header span { color: white; font-weight: 700; font-size: 1rem; }
+  header span em { color: #00b4d8; font-style: normal; }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.25rem;
+    gap: 1rem;
+  }
+
+  h1 { font-size: 1.35rem; font-weight: 700; }
+  .subtitle { color: #5a7494; font-size: 0.9rem; }
+
+  .trackers {
+    display: grid;
+    grid-template-columns: repeat(3, 200px);
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 680px) {
+    .trackers { grid-template-columns: 1fr; width: 100%; max-width: 280px; }
+  }
+
+  .tracker {
+    background: white;
+    border-radius: 12px;
+    border: 1.5px solid #e2ecf4;
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.25s;
+  }
+  .tracker-name {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #8faabf;
+  }
+  .tracker h3 { font-size: 1rem; font-weight: 600; }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 5px 13px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+  .pill-green { background: #e8f5e9; color: #2e7d32; }
+  .pill-red   { background: #fce4ec; color: #ad1457; }
+  .pill-blue  { background: #e3f2fd; color: #1565c0; }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot-green { background: #43a047; }
+  .dot-red   { background: #e91e8c; }
+  .dot-blue  { background: #1e88e5; }
+</style>
+</head>
+<body>
+
+<div id="teconsent"></div>
+
+<header>
+  <span>TrustArc <em>|</em> Adobe Experience Platform</span>
+</header>
+
+<main>
+  <h1>Tracker Consent Demo</h1>
+  <p class="subtitle">Status updates automatically based on the user's consent choices.</p>
+
+  <div class="trackers">
+    <div class="tracker">
+      <div class="tracker-name">Required · Level 1</div>
+      <h3>Session</h3>
+      <span class="status-pill pill-blue">
+        <span class="dot dot-blue"></span> Always on
+      </span>
+    </div>
+
+    <div class="tracker" id="card-ga4">
+      <div class="tracker-name">Functional · Level 2</div>
+      <h3>Google Analytics</h3>
+      <span class="status-pill pill-red" id="pill-ga4">
+        <span class="dot dot-red"></span> Blocked
+      </span>
+    </div>
+
+    <div class="tracker" id="card-meta">
+      <div class="tracker-name">Advertising · Level 3</div>
+      <h3>Meta Pixel</h3>
+      <span class="status-pill pill-red" id="pill-meta">
+        <span class="dot dot-red"></span> Blocked
+      </span>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  function getCookie(name) {
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function update() {
+    var pref = getCookie('cmapi_cookie_privacy');
+    var func = pref ? /\b2\b/.test(pref) : false;
+    var adv  = pref ? /\b3\b/.test(pref) : false;
+
+    var pillGA4 = document.getElementById('pill-ga4');
+    var cardGA4 = document.getElementById('card-ga4');
+    if (func) {
+      pillGA4.className = 'status-pill pill-green';
+      pillGA4.innerHTML = '<span class="dot dot-green"></span> Firing';
+      cardGA4.style.borderColor = '#a5d6a7';
+    } else {
+      pillGA4.className = 'status-pill pill-red';
+      pillGA4.innerHTML = '<span class="dot dot-red"></span> Blocked';
+      cardGA4.style.borderColor = '#e2ecf4';
+    }
+
+    var pillMeta = document.getElementById('pill-meta');
+    var cardMeta = document.getElementById('card-meta');
+    if (adv) {
+      pillMeta.className = 'status-pill pill-green';
+      pillMeta.innerHTML = '<span class="dot dot-green"></span> Firing';
+      cardMeta.style.borderColor = '#a5d6a7';
+    } else {
+      pillMeta.className = 'status-pill pill-red';
+      pillMeta.innerHTML = '<span class="dot dot-red"></span> Blocked';
+      cardMeta.style.borderColor = '#e2ecf4';
+    }
+  }
+
+  window.addEventListener('message', function(e) {
+    try {
+      var d = JSON.parse(e.data);
+      if (d.source === 'preference_manager' && d.message === 'submit_preferences') {
+        setTimeout(function() { window.location.reload(); }, 1000);
+      }
+    } catch(err) {}
+  });
+
+  update();
+  setInterval(update, 1000);
+})();
+</script>
+</body>
+</html>
