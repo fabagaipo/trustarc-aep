@@ -144,54 +144,38 @@
 </footer>
 
 <script>
-(function () {
-  function getCookie(name) {
-    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return m ? decodeURIComponent(m[1]) : null;
+// Called by AEP Custom Code actions — no cookie polling needed.
+// In your AEP Functional rule action, add:   window.setTrackerStatus('functional', true);
+// In your AEP Advertising rule action, add:  window.setTrackerStatus('advertising', true);
+// On page reload after consent withdrawal, the cards reset to Blocked by default.
+ 
+window.setTrackerStatus = function(tracker, allowed) {
+  var pillId = tracker === 'functional' ? 'pill-ga4'  : 'pill-meta';
+  var cardId = tracker === 'functional' ? 'card-ga4'  : 'card-meta';
+  var pill = document.getElementById(pillId);
+  var card = document.getElementById(cardId);
+  if (!pill || !card) return;
+ 
+  if (allowed) {
+    pill.className = 'status-pill pill-green';
+    pill.innerHTML = '<span class="dot dot-green"></span> Firing';
+    card.style.borderColor = '#a5d6a7';
+  } else {
+    pill.className = 'status-pill pill-red';
+    pill.innerHTML = '<span class="dot dot-red"></span> Blocked';
+    card.style.borderColor = '#e2ecf4';
   }
-
-  function update() {
-    var pref = getCookie('cmapi_cookie_privacy');
-    var func = pref ? /\b2\b/.test(pref) : false;
-    var adv  = pref ? /\b3\b/.test(pref) : false;
-
-    var pillGA4 = document.getElementById('pill-ga4');
-    var cardGA4 = document.getElementById('card-ga4');
-    if (func) {
-      pillGA4.className = 'status-pill pill-green';
-      pillGA4.innerHTML = '<span class="dot dot-green"></span> Firing';
-      cardGA4.style.borderColor = '#a5d6a7';
-    } else {
-      pillGA4.className = 'status-pill pill-red';
-      pillGA4.innerHTML = '<span class="dot dot-red"></span> Blocked';
-      cardGA4.style.borderColor = '#e2ecf4';
+};
+ 
+// Page reload after consent change (triggered by TrustArc CCM postMessage)
+window.addEventListener('message', function(e) {
+  try {
+    var d = JSON.parse(e.data);
+    if (d.source === 'preference_manager' && d.message === 'submit_preferences') {
+      setTimeout(function() { window.location.reload(); }, 1000);
     }
-
-    var pillMeta = document.getElementById('pill-meta');
-    var cardMeta = document.getElementById('card-meta');
-    if (adv) {
-      pillMeta.className = 'status-pill pill-green';
-      pillMeta.innerHTML = '<span class="dot dot-green"></span> Firing';
-      cardMeta.style.borderColor = '#a5d6a7';
-    } else {
-      pillMeta.className = 'status-pill pill-red';
-      pillMeta.innerHTML = '<span class="dot dot-red"></span> Blocked';
-      cardMeta.style.borderColor = '#e2ecf4';
-    }
-  }
-
-  window.addEventListener('message', function(e) {
-    try {
-      var d = JSON.parse(e.data);
-      if (d.source === 'preference_manager' && d.message === 'submit_preferences') {
-        setTimeout(function() { window.location.reload(); }, 1000);
-      }
-    } catch(err) {}
-  });
-
-  update();
-  setInterval(update, 1000);
-})();
+  } catch(err) {}
+});
 </script>
 </body>
 </html>
